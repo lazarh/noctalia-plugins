@@ -43,6 +43,7 @@ Item {
 
     function setThreshold(value) {
         Logger.i("BatteryThreshold", "Restored charge threshold to " + value + "%");
+        root.currentThreshold = value;
         thresholdWriter.command = ["sh", "-c", `echo ${value} > ${thresholdFile}`];
         thresholdWriter.running = true;
     }
