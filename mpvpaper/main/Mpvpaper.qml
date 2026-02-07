@@ -30,13 +30,35 @@ Item {
     /***************************
     * FUNCTIONS
     ***************************/
+    function buildMpvCommand() {
+        let options = [
+            `input-ipc-server='${root.mpvSocket}'`,
+            `profile='${root.profile}'`,
+            `panscan=${root.fillMode === "fit" ? 0 : 1}`,
+            "loop"
+        ];
+
+        if (root.hardwareAcceleration) {
+            options.push("hwdec=auto");
+        }
+
+        if (root.isMuted) {
+            options.push("no-audio");
+        }
+
+        const optionsString = options.join(" ");
+        const command = `mpvpaper -o "${optionsString}" ALL "${root.currentWallpaper}"`;
+
+        return ["sh", "-c", command];
+    }
+
     function activateMpvpaper() {
         Logger.d("mpvpaper", "Activating mpvpaper...");
 
         // Save the old wallpapers of the user.
         innerService.saveOldWallpapers();
 
-        mpvProc.command = ["sh", "-c", `mpvpaper -o "input-ipc-server='${root.mpvSocket}' profile='${profile}' panscan=${fillMode === "fit" ? 0 : 1} ${hardwareAcceleration ? "hwdec=auto" : ""} loop ${isMuted ? "no-audio" : ""}" ALL "${root.currentWallpaper}"` ]
+        mpvProc.command = buildMpvCommand();
         mpvProc.running = true;
 
         pluginApi.pluginSettings.isPlaying = true;
