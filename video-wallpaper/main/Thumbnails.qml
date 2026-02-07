@@ -21,6 +21,7 @@ Item {
 
     readonly property string thumbCacheFolder: ImageCacheService.wpThumbDir + "video-wallpaper"
     property int _thumbGenIndex: 0
+    property list<string> thumbCacheFolderFiles: []
 
 
     /***************************
@@ -47,11 +48,6 @@ Item {
         return `${thumbCacheFolder}/${file}.bmp`
     }
 
-    // Get thumbnail url based on video name
-    function getThumbUrl(videoPath: string): string {
-        return `file://${getThumbPath(videoPath)}`;
-    }
-
 
     function startColorGen() {
         thumbColorGenTimer.start();
@@ -65,22 +61,25 @@ Item {
         clearThumbCacheReady();
 
         while(root._thumbGenIndex < folderModel.count) {
-            const videoUrl = folderModel.get(root._thumbGenIndex, "fileUrl");
-            const thumbUrl = root.getThumbUrl(videoUrl);
+            const videoPath = folderModel.get(root._thumbGenIndex, "filePath");
+            const thumbPath = root.getThumbPath(videoPath);
             root._thumbGenIndex++;
             // Check if file already exists, otherwise create it with ffmpeg
-            if (thumbFolderModel.indexOf(thumbUrl) === -1) {
-                Logger.d("video-wallpaper", `Creating thumbnail for video: ${videoUrl}`);
+            if (root.thumbCacheFolderFiles.includes(thumbPath)) {
+                Logger.d("video-wallpaper", `Creating thumbnail for video: ${videoPath}`);
 
                 // With scale
                 //thumbProc.command = ["sh", "-c", `ffmpeg -y -i ${videoUrl} -vf "scale=1080:-1" -vframes:v 1 ${thumbUrl}`]
-                thumbProc.command = ["sh", "-c", `ffmpeg -y -i ${videoUrl} -vframes:v 1 ${thumbUrl}`]
+                thumbProc.command = ["sh", "-c", `ffmpeg -y -i ${videoPath} -vframes:v 1 ${thumbPath}`]
                 thumbProc.running = true;
                 return;
             }
         }
 
-        // The thumbnail generation has looped over every video and finished the generation.
+        // The thumbnail generation has looped over every video and finished the generation
+        thumbCacheFolderFiles = [];
+        thumbCacheFolderFilesProc.running = true;
+
         root._thumbGenIndex = 0;
         setThumbCacheReady();
     }
@@ -100,6 +99,13 @@ Item {
     * COMPONENTS
     ***************************/
     Process {
+        // Process to create the thumbnail folder
+        id: thumbInit
+        command: ["sh", "-c", `mkdir -p ${root.thumbCacheFolder}`]
+        running: true
+    }
+
+    Process {
         id: thumbProc
         onRunningChanged: {
             if (thumbProc.running)
@@ -110,11 +116,16 @@ Item {
         }
     }
 
-    FolderListModel {
-        id: thumbFolderModel
-        folder: "file://" + root.thumbCacheFolder
-        nameFilters: ["*.bmp"]
-        showDirs: false
+    Process {
+        id: thumbCacheFolderFilesProc
+        command: ["sh", "-c", `find ${root.thumbCacheFolder} -name "*.bmp"`]
+        running: true
+        stdout: SplitParser {
+            onRead: line => {
+                root.thumbCacheFolderFiles.push(line);
+                Logger.d("video-wallpaper", line);
+            }
+        }
     }
 
     Timer {
@@ -124,23 +135,22 @@ Item {
         running: false
         triggeredOnStart: false
 
-        onTriggered: {
-            if(thumbFolderModel.status == FolderListModel.Ready) {
-                const thumbPath = root.getThumbPath(root.currentWallpaper);
-                if(thumbFolderModel.indexOf("file://" + thumbPath) !== -1) {
-                    Logger.d("video-wallpaper", "Generating color scheme based on video wallpaper!");
-                    WallpaperService.changeWallpaper(thumbPath);
-                } else {
-                    // Try to create the thumbnail again
-                    // just a fail safe if the current wallpaper isn't included in the wallpapers folder
-                    const videoUrl = folderModel.get(root._thumbGenIndex, "fileUrl");
-                    const thumbUrl = root.getThumbUrl(videoUrl);
-
-                    Logger.d("video-wallpaper", "Thumbnail not found:", thumbPath);
-                    thumbColorGenTimerProc.command = ["sh", "-c", `ffmpeg -y -i ${videoUrl} -vframes:v 1 ${thumbUrl}`]
-                    thumbColorGenTimerProc.running = true;
-                }
+        onTriggered: { 
+            const thumbPath = root.getThumbPath(root.currentWallpaper);
+            if (root.thumbCacheFolderFiles.includes(thumbPath)) {
+                Logger.d("video-wallpaper", "Generating color scheme based on video wallpaper!");
+                WallpaperService.changeWallpaper(thumbPath);
             } else {
+                // Try to create the thumbnail again
+                // just a fail safe if the current wallpaper isn't included in the wallpapers folder
+                const videoPath = folderModel.get(root._thumbGenIndex, "filePath");
+                const thumbUrl = root.getThumbPath(videoPath);
+
+                Logger.d("video-wallpaper", "Thumbnail not found:", thumbPath);
+                thumbColorGenTimerProc.command = ["sh", "-c", `ffmpeg -y -i ${videoPath} -vframes:v 1 ${thumbUrl}`]
+                thumbColorGenTimerProc.running = true;
+
+                // Restart this timer
                 thumbColorGenTimer.restart();
             }
         }
@@ -149,12 +159,5 @@ Item {
     Process {
         id: thumbColorGenTimerProc
         onExited: thumbColorGenTimer.start();
-    }
-
-    // Process to create the thumbnail folder
-    Process {
-        id: thumbInit
-        command: ["sh", "-c", `mkdir -p ${root.thumbCacheFolder}`]
-        running: true
     }
 }
