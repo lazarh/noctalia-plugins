@@ -88,7 +88,7 @@
     {
       "id": "clipper",
       "name": "Clipper",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "official": false,
       "author": "blackbartblues",
       "description": "Advanced clipboard manager with history, search, keyboard navigation, ToDo integration, pinned items, notecards/sticky notes, and selection-to-notecard feature. Fully translated with comprehensive i18n support.",
@@ -103,7 +103,7 @@
         "Notes",
         "i18n"
       ],
-      "lastUpdated": "2026-02-05T13:48:25+01:00"
+      "lastUpdated": "2026-02-08T21:20:48+01:00"
     },
     {
       "id": "currency-exchange",
