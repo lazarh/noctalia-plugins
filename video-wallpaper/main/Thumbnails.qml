@@ -64,7 +64,7 @@ Item {
             // Try to create the thumbnail again
             // just a fail safe if the current wallpaper isn't included in the wallpapers folder
             Logger.d("video-wallpaper", "Thumbnail not found:", thumbPath);
-            startColorGenProc.command = ["sh", "-c", `ffmpeg -y -i ${currentWallpaper} -vframes:v 1 ${thumbPath}`]
+            startColorGenProc.command = ["sh", "-c", `ffmpeg -y -i "${currentWallpaper}" -vframes:v 1 "${thumbPath}"`]
             startColorGenProc.running = true;
             return;
         }
@@ -95,7 +95,7 @@ Item {
 
                 // With scale
                 //thumbProc.command = ["sh", "-c", `ffmpeg -y -i ${videoUrl} -vf "scale=1080:-1" -vframes:v 1 ${thumbUrl}`]
-                thumbGenerationProc.command = ["sh", "-c", `ffmpeg -y -i ${videoPath} -vframes:v 1 ${thumbPath}`]
+                thumbGenerationProc.command = ["sh", "-c", `ffmpeg -y -i "${videoPath}" -vframes:v 1 "${thumbPath}"`]
                 thumbGenerationProc.running = true;
                 return;
             }
