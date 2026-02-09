@@ -479,9 +479,7 @@ Item {
       if (t.pageId === pageId) t.pageId = 0;
     });
 
-    // Remove page
     var newPages = pages.filter(p => p.id !== pageId);
-    newPages.forEach((p, i) => p.id = i);
 
     // Update current page if needed
     if (pluginApi?.pluginSettings?.current_page_id === pageId) {

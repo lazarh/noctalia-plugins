@@ -262,10 +262,15 @@ ColumnLayout {
                       icon: "trash"
                       tooltipText: pluginApi?.tr("settings.pages.delete_button_tooltip")
                       colorFg: Color.mError
-                      enabled: (pluginApi?.pluginSettings?.pages?.length || 0) > 1
+                      enabled: (pluginApi?.pluginSettings?.pages?.length || 0) > 1 && modelData.id !== 0
                       onClicked: {
                         if ((pluginApi?.pluginSettings?.pages?.length || 0) <= 1) {
                           ToastService.showError(pluginApi?.tr("settings.pages.cannot_delete_last"));
+                          return;
+                        }
+
+                        if (modelData.id === 0) {
+                          ToastService.showError(pluginApi?.tr("settings.pages.cannot_delete_default"));
                           return;
                         }
 
@@ -451,6 +456,13 @@ ColumnLayout {
       return;
 
     var pages = pluginApi.pluginSettings.pages || [];
+
+    // Prevent deleting default page (id: 0)
+    if (pages[pageIdx].id === 0) {
+      ToastService.showError(pluginApi?.tr("settings.pages.cannot_delete_default"));
+      return;
+    }
+
     if (pages.length <= 1) {
       ToastService.showError(pluginApi?.tr("settings.pages.cannot_delete_last"));
       return;
@@ -484,11 +496,6 @@ ColumnLayout {
         pages.push(defaultPage);
         pluginApi.pluginSettings.current_page_id = 0;
       }
-    }
-
-    // Update IDs to be sequential after deletion
-    for (var i = 0; i < pages.length; i++) {
-      pages[i].id = i;
     }
 
     pluginApi.pluginSettings.pages = pages;
