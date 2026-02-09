@@ -16,19 +16,19 @@ Item {
     /***************************
     * PROPERTIES
     ***************************/
-    readonly property string    currentWallpaper:   pluginApi.pluginSettings.currentWallpaper   || ""
-    readonly property bool      enabled:            pluginApi.pluginSettings.enabled            || false
-    readonly property bool      thumbCacheReady:    pluginApi.pluginSettings.thumbCacheReady    || false
-    readonly property string    wallpapersFolder:   pluginApi.pluginSettings.wallpapersFolder   || "~/Pictures/Wallpapers"
+    readonly property string currentWallpaper: pluginApi?.pluginSettings?.currentWallpaper || ""
+    readonly property bool   enabled:          pluginApi?.pluginSettings?.enabled          || false
+    readonly property bool   thumbCacheReady:  pluginApi?.pluginSettings?.thumbCacheReady  || false
+    readonly property string wallpapersFolder: pluginApi?.pluginSettings?.wallpapersFolder || pluginApi?.manifest?.metadata?.defaultSettings?.wallpapersFolder || ""
 
-    required property var getThumbPath
+    required property var    getThumbPath
     required property string thumbCacheFolderPath
 
     required property FolderModel folderModel
     required property FolderModel thumbFolderModel
 
     property bool oldWallpapersSaved: false
-    property int _thumbGenIndex: 0
+    property int  _thumbGenIndex: 0
 
 
     /***************************
@@ -52,7 +52,7 @@ Item {
     function startColorGen() {
         // If the folder model isn't ready, or we are still regenerating a thumbnail, or the old wallpapers haven't saved yet, try in a bit
         if(!thumbFolderModel.ready || startColorGenProc.running || !oldWallpapersSaved){
-            startColorGenTimer.restart();
+            Qt.callLater(startColorGen);
             return;
         }
 
@@ -78,7 +78,7 @@ Item {
 
         // Try to start in a bit since the folder models aren't ready yet
         if (!folderModel.ready || !thumbFolderModel.ready) {
-            thumbGenerationTimer.restart();
+            Qt.callLater(thumbGeneration);
             return;
         }
 
@@ -157,16 +157,6 @@ Item {
             root.thumbGeneration();
         }
     }
-    
-    Timer {
-        id: thumbGenerationTimer
-        interval: 10
-        repeat: false
-        running: false
-        triggeredOnStart: false
-        onTriggered: root.thumbGeneration();
-    }
-
 
     Process {
         id: startColorGenProc
@@ -174,14 +164,5 @@ Item {
             // When finished recreating the thumbnail, try to apply the colors again
             root.startColorGen();
         }
-    }
-
-    Timer {
-        id: startColorGenTimer
-        interval: 10
-        repeat: false
-        running: false
-        triggeredOnStart: false
-        onTriggered: root.startColorGen();
     }
 }

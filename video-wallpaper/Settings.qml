@@ -16,8 +16,8 @@ ColumnLayout {
     /***************************
     * PROPERTIES
     ***************************/
-    property string activeBackend:  pluginApi.pluginSettings.activeBackend  || "qt6-multimedia"
-    property bool   enabled:        pluginApi.pluginSettings.enabled        || false
+    property string activeBackend:  pluginApi?.pluginSettings?.activeBackend  || pluginApi?.manifest?.metadata?.defaultSettings?.activeBackend || ""
+    property bool   enabled:        pluginApi?.pluginSettings?.enabled        || false
 
 
     /***************************
@@ -27,9 +27,29 @@ ColumnLayout {
     NToggle {
         Layout.fillWidth: true
         label: pluginApi?.tr("settings.toggle.label") || "Enable video wallpapers"
-        description: pluginApi?.tr("settings.toggle.description") || "Enable video wallpapers shown with QtMultimedia."
+        description: pluginApi?.tr("settings.toggle.description") || "Choose your preferred backend to render the videos with, in the box below."
         checked: root.enabled
         onToggled: checked => root.enabled = checked
+    }
+
+    NComboBox {
+        enabled: root.enabled
+        Layout.fillWidth: true
+        label: root.pluginApi?.tr("settings.backend.label") || "Active backend"
+        description: root.pluginApi?.tr("settings.backend.description") || "What to use to render the video wallpapers."
+        defaultValue: "qt6-multimedia"
+        model: [
+            {
+                "key": "qt6-multimedia",
+                "name": root.pluginApi?.tr("settings.backend.qt6_multimedia") || "Qt6 Multimedia"
+            },
+            {
+                "key": "mpvpaper",
+                "name": root.pluginApi?.tr("settings.backend.mpvpaper") || "Mpvpaper"
+            }
+        ]
+        currentKey: root.activeBackend
+        onSelected: key => root.activeBackend = key
     }
 
     NDivider {}
@@ -90,9 +110,18 @@ ColumnLayout {
             id: advanced
             pluginApi: root.pluginApi
             enabled: root.enabled
+            activeBackend: root.activeBackend
         }
     }
 
+    Connections {
+        target: root.pluginApi
+        function onPluginSettingsChanged() {
+            // Update the local properties on change
+            root.activeBackend = root.pluginApi?.pluginSettings?.activeBackend  || root.pluginApi?.manifest?.metadata?.defaultSettings?.activeBackend || ""
+            root.enabled =       root.pluginApi?.pluginSettings?.enabled        || false
+        }
+    }
 
     /********************************
     * Save settings functionality
@@ -103,10 +132,12 @@ ColumnLayout {
             return;
         }
 
-        pluginApi.pluginSettings.active = enabled;
+        pluginApi.pluginSettings.enabled = enabled;
+        pluginApi.pluginSettings.activeBackend = activeBackend;
 
         general.saveSettings();
         automation.saveSettings();
+        advanced.saveSettings();
 
         pluginApi.saveSettings();
     }

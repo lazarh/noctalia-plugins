@@ -59,11 +59,18 @@
   "settings": {
     "toggle": {
       "label": "Enable video wallpapers",
-      "description": "Enable video wallpapers shown with QtMultimedia."
+      "description": "Choose your preferred backend to render the videos with, in the box below."
+    },
+    "backend": {
+      "label": "Active backend",
+      "description": "What to use to render the video wallpapers.",
+      "qt6_multimedia": "Qt6 Multimedia",
+      "mpvpaper": "Mpvpaper"
     },
     "tab_bar": {
       "general": "General",
-      "automation": "Automation"
+      "automation": "Automation",
+      "advanced": "Advanced"
     },
     "general": {
       "wallpapers_folder": {
@@ -123,12 +130,47 @@
       "time": {
         "label": "Time",
         "description": "How long it should take to switch the wallpaper.",
+        "m": "{minute}m",
+        "h": "{hour}h",
         "5m": "5m",
         "10m": "10m",
         "30m": "30m",
         "1h": "1h",
         "1h30m": "1h 30m",
         "2h": "2h"
+      }
+    },
+    "advanced": {
+      "fill_mode": {
+        "label": "Fill mode",
+        "description": "",
+        "fit": "Fit",
+        "crop": "Crop",
+        "stretch": "Stretch"
+      },
+      "profile": {
+        "label": "Mpv Profile",
+        "description": "The profile that mpv uses. Use fast for better performance.",
+        "default": "Default",
+        "fast": "Fast",
+        "high_quality": "High Quality",
+        "low_latency": "Low Latency"
+      },
+      "hardware_acceleration": {
+        "label": "Hardware Acceleration",
+        "description": "Offloads video decoding from cpu to gpu / dedicated hardware."
+      },
+      "mpv_socket": {
+        "label": "Mpvpaper Socket",
+        "description": "The mpvpaper socket that noctalia connects to.",
+        "input_placeholder": "Example: /tmp/mpv-socket"
+      },
+      "orientation": {
+        "label": "Orientation",
+        "description": "The orientation of the video playing, can be any multiple of 90 degrees."
+      },
+      "no_backend": {
+        "label": "No active backend..."
       }
     }
   }

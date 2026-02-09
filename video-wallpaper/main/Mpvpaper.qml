@@ -13,15 +13,15 @@ Item {
     /***************************
     * PROPERTIES
     ***************************/
-    readonly property string    currentWallpaper:       pluginApi.pluginSettings.currentWallpaper       || ""
-    readonly property bool      enabled:                pluginApi.pluginSettings.enabled                || false
-    readonly property bool      hardwareAcceleration:   pluginApi.pluginSettings.hardwareAcceleration   || false
-    readonly property string    fillMode:               pluginApi.pluginSettings.fillMode               || 0
-    readonly property bool      isMuted:                pluginApi.pluginSettings.isMuted                || false
-    readonly property bool      isPlaying:              pluginApi.pluginSettings.isPlaying              || false
-    readonly property string    mpvSocket:              pluginApi.pluginSettings.mpvSocket              || "/tmp/mpv-socket"
-    readonly property string    profile:                pluginApi.pluginSettings.profile                || "default"
-    readonly property double    volume:                 pluginApi.pluginSettings.volume                 || 1.0
+    readonly property string currentWallpaper:     pluginApi?.pluginSettings?.currentWallpaper     || ""
+    readonly property bool   enabled:              pluginApi?.pluginSettings?.enabled              || false
+    readonly property bool   hardwareAcceleration: pluginApi?.pluginSettings?.hardwareAcceleration || pluginApi?.manifest?.metadata?.defaultSettings?.hardwareAcceleration || false
+    readonly property string fillMode:             pluginApi?.pluginSettings?.fillMode             || pluginApi?.manifest?.metadata?.defaultSettings?.fillMode             || ""
+    readonly property bool   isMuted:              pluginApi?.pluginSettings?.isMuted              || false
+    readonly property bool   isPlaying:            pluginApi?.pluginSettings?.isPlaying            || false
+    readonly property string mpvSocket:            pluginApi?.pluginSettings?.mpvSocket            || pluginApi?.manifest?.metadata?.defaultSettings?.mpvSocket || ""
+    readonly property string profile:              pluginApi?.pluginSettings?.profile              || pluginApi?.manifest?.metadata?.defaultSettings?.profile   || ""
+    readonly property double volume:               pluginApi?.pluginSettings?.volume               || pluginApi?.manifest?.metadata?.defaultSettings?.volume    || 0
 
 
     /***************************

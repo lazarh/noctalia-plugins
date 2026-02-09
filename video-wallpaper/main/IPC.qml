@@ -10,11 +10,11 @@ Item {
     /***************************
     * PROPERTIES
     ***************************/
-    readonly property string    currentWallpaper:   pluginApi.pluginSettings.currentWallpaper   || ""
-    readonly property bool      enabled:            pluginApi.pluginSettings.enabled            || false
-    readonly property bool      isMuted:            pluginApi.pluginSettings.isMuted            || false
-    readonly property bool      isPlaying:          pluginApi.pluginSettings.isPlaying          || false
-    readonly property double    volume:             pluginApi.pluginSettings.volume             || 1.0
+    readonly property string currentWallpaper: pluginApi?.pluginSettings?.currentWallpaper || ""
+    readonly property bool   enabled:          pluginApi?.pluginSettings?.enabled          || false
+    readonly property bool   isMuted:          pluginApi?.pluginSettings?.isMuted          || false
+    readonly property bool   isPlaying:        pluginApi?.pluginSettings?.isPlaying        || false
+    readonly property double volume:           pluginApi?.pluginSettings?.volume           || pluginApi?.manifest?.metadata?.defaultSettings?.volume || 0
 
     required property var random
     required property var clear

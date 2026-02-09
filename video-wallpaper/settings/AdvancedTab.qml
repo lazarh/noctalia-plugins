@@ -16,16 +16,12 @@ ColumnLayout {
     * PROPERTIES
     ***************************/
     required property var pluginApi
+    required property string activeBackend
     required property bool enabled
-    
-    readonly property string activeBackend: pluginApi.pluginSettings.activeBackend || "qt6-multimedia"
 
-    property bool hardwareAcceleration: pluginApi.pluginSettings.hardwareAcceleration   || false
-    property string fillMode:           pluginApi.pluginSettings.fillMode               || "fit"
-    property string mpvSocket:          pluginApi.pluginSettings.mpvSocket              || "/tmp/mpv-socket"
-    property string profile:            pluginApi.pluginSettings.profile                || "default"
+    property string fillMode: pluginApi?.pluginSettings?.fillMode || pluginApi?.manifest?.metadata?.defaultSettings?.fill_mode || ""
 
-    readonly property list<string> backends: ["mpvpaper", "qt6-multimedia"]
+    readonly property list<string> backends: ["qt6-multimedia", "mpvpaper"]
 
     /***************************
     * COMPONENTS
@@ -36,19 +32,19 @@ ColumnLayout {
         Layout.fillWidth: true
         label: root.pluginApi?.tr("settings.advanced.fill_mode.label") || "Fill Mode"
         description: root.pluginApi?.tr("settings.advanced.fill_mode.description") || "The mode that the wallpaper is fitted into the background."
-        defaultValue: "0"
+        defaultValue: "fit"
         model: [
             {
                 "key": "fit",
-                "name": pluginApi?.tr("settings.advanced.fill_mode.fit") || "Fit"
+                "name": root.pluginApi?.tr("settings.advanced.fill_mode.fit") || "Fit"
             },
             {
                 "key": "crop",
-                "name": pluginApi?.tr("settings.advanced.fill_mode.crop") || "Crop"
+                "name": root.pluginApi?.tr("settings.advanced.fill_mode.crop") || "Crop"
             },
             {
                 "key": "stretch",
-                "name": pluginApi?.tr("settings.advanced.fill_mode.stretch") || "Stretch"
+                "name": root.pluginApi?.tr("settings.advanced.fill_mode.stretch") || "Stretch"
             }
         ]
         currentKey: root.fillMode
@@ -59,11 +55,13 @@ ColumnLayout {
         currentIndex: root.backends.indexOf(root.activeBackend)
 
         VideoWallpaper {
+            id: videoWallpaper
             pluginApi: root.pluginApi
             enabled: root.enabled
         }
 
         Mpvpaper {
+            id: mpvpaper
             pluginApi: root.pluginApi
             enabled: root.enabled
         }
@@ -75,13 +73,10 @@ ColumnLayout {
     }
 
     Connections {
-        target: pluginApi
+        target: root.pluginApi
         function onPluginSettingsChanged() {
             // Update the local properties on change
-            root.hardwareAcceleration = root.pluginApi.pluginSettings.hardwareAcceleration || false
-            root.mpvSocket = root.pluginApi.pluginSettings.mpvSocket || "/tmp/mpv-socket";
-            root.profile = root.pluginApi.pluginSettings.profile || pluginApi?.manifest?.metadata?.defaultSettings?.profile || "default"
-            root.fillMode = root.pluginApi.pluginSettings.fillMode || pluginApi?.manifest?.metadata?.defaultSettings?.fillMode || "fit"
+            root.fillMode = root.pluginApi?.pluginSettings?.fillMode || root.pluginApi?.manifest?.metadata?.defaultSettings?.fillMode || ""
         }
     }
 
@@ -90,14 +85,14 @@ ColumnLayout {
     * Save settings functionality
     ********************************/
     function saveSettings() {
-        if(!pluginApi) {
+        if(pluginApi == null) {
             Logger.e("mpvpaper", "Cannot save: pluginApi is null");
             return;
         }
 
-        pluginApi.pluginSettings.hardwareAcceleration = hardwareAcceleration;
-        pluginApi.pluginSettings.mpvSocket = mpvSocket;
-        pluginApi.pluginSettings.profile = profile;
+        videoWallpaper.saveSettings();
+        mpvpaper.saveSettings();
+
         pluginApi.pluginSettings.fillMode = fillMode;
     }
 }

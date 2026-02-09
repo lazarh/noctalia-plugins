@@ -22,7 +22,7 @@ ColumnLayout {
     ***************************/
     // Orientation
     NLabel {
-        label: root.pluginApi?.tr("settings.advanced.no_backend") || "No active backend..."
+        label: root.pluginApi?.tr("settings.advanced.no_backend.label") || "No active backend..."
     }
 
 
@@ -30,7 +30,7 @@ ColumnLayout {
     * Save settings functionality
     ********************************/
     function saveSettings() {
-        if(!pluginApi) {
+        if(pluginApi == null) {
             Logger.e("mpvpaper", "Cannot save: pluginApi is null");
             return;
         }

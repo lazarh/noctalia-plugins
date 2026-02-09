@@ -16,9 +16,9 @@ ColumnLayout {
     required property var pluginApi
     required property bool enabled
 
-    property bool   hardwareAcceleration:   pluginApi.pluginSettings.hardwareAcceleration   || false
-    property string mpvSocket:              pluginApi.pluginSettings.mpvSocket              || "/tmp/mpv-socket"
-    property string profile:                pluginApi.pluginSettings.profile                || "default"
+    property bool   hardwareAcceleration: pluginApi?.pluginSettings?.hardwareAcceleration || false
+    property string mpvSocket:            pluginApi?.pluginSettings?.mpvSocket            || pluginApi?.manifest?.metadata?.defaultSettings?.mpvSocket || ""
+    property string profile:              pluginApi?.pluginSettings?.profile              || pluginApi?.manifest?.metadata?.defaultSettings?.profile   || ""
 
 
     /***************************
@@ -28,8 +28,8 @@ ColumnLayout {
     NComboBox {
         enabled: root.enabled
         Layout.fillWidth: true
-        label: root.pluginApi?.tr("settings.profile.label") || "Profile"
-        description: root.pluginApi?.tr("settings.profile.description") || "The profile that mpv uses. Use fast for better performance.";
+        label: root.pluginApi?.tr("settings.advanced.profile.label") || "Profile"
+        description: root.pluginApi?.tr("settings.advanced.profile.description") || "The profile that mpv uses. Use fast for better performance.";
         defaultValue: "default"
         model: [
             {
@@ -57,8 +57,8 @@ ColumnLayout {
     NToggle {
         enabled: root.enabled
         Layout.fillWidth: true
-        label: pluginApi?.tr("settings.advanced.hardware_acceleration.label") || "Hardware Acceleration"
-        description: pluginApi?.tr("settings.advanced.hardware_acceleration.description") || "Offloads video decoding from cpu to gpu / dedicated hardware.";
+        label: root.pluginApi?.tr("settings.advanced.hardware_acceleration.label") || "Hardware Acceleration"
+        description: root.pluginApi?.tr("settings.advanced.hardware_acceleration.description") || "Offloads video decoding from cpu to gpu / dedicated hardware.";
         checked: root.hardwareAcceleration
         onToggled: checked => root.hardwareAcceleration = checked
         defaultValue: false
@@ -68,7 +68,7 @@ ColumnLayout {
     NTextInput {
         enabled: root.enabled
         Layout.fillWidth: true
-        label: root.pluginApi?.tr("settings.advanced.mpv_socket.title_label") || "Mpvpaper socket"
+        label: root.pluginApi?.tr("settings.advanced.mpv_socket.title_label") || "Mpvpaper Socket"
         description: root.pluginApi?.tr("settings.advanced.mpv_socket.title_description") || "The mpvpaper socket that noctalia connects to"
         placeholderText: root.pluginApi?.tr("settings.advanced.mpv_socket.input_placeholder") || "Example: /tmp/mpv-socket"
         text: root.mpvSocket
@@ -79,9 +79,9 @@ ColumnLayout {
         target: root.pluginApi
         function onPluginSettingsChanged() {
             // Update the local properties on change
-            root.hardwareAcceleration = root.pluginApi.pluginSettings.hardwareAcceleration || false
-            root.mpvSocket = root.pluginApi.pluginSettings.mpvSocket || "/tmp/mpv-socket";
-            root.profile = root.pluginApi.pluginSettings.profile || "default"
+            root.hardwareAcceleration = root.pluginApi?.pluginSettings?.hardwareAcceleration || false
+            root.mpvSocket =            root.pluginApi?.pluginSettings?.mpvSocket            || root.pluginApi?.manifest?.metadata?.defaultSettings?.mpvSocket || ""
+            root.profile =              root.pluginApi?.pluginSettings?.profile              || root.pluginApi?.manifest?.metadata?.defaultSettings?.profile   || ""
         }
     }
 
@@ -90,7 +90,7 @@ ColumnLayout {
     * Save settings functionality
     ********************************/
     function saveSettings() {
-        if(!pluginApi) {
+        if(pluginApi == null) {
             Logger.e("video-wallpaper", "Cannot save: pluginApi is null");
             return;
         }

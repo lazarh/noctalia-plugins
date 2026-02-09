@@ -16,7 +16,7 @@ ColumnLayout {
     required property var pluginApi
     required property bool enabled
 
-    property int orientation: pluginApi.pluginSettings.orientation || 0
+    property int orientation: pluginApi?.pluginSettings?.orientation || 0
 
 
     /***************************
@@ -34,7 +34,7 @@ ColumnLayout {
         stepSize: 90
         text: _value
         label: root.pluginApi?.tr("settings.advanced.orientation.label") || "Orientation"
-        description: root.pluginApi?.tr("settings.advanced.orientation.description") || "The orientation of the video playing, can be any multiple of 90."
+        description: root.pluginApi?.tr("settings.advanced.orientation.description") || "The orientation of the video playing, can be any multiple of 90 degrees."
         onMoved: value => _value = value
         onPressedChanged: (pressed, value) => {
             if(root.pluginApi == null) {
@@ -53,7 +53,7 @@ ColumnLayout {
         target: pluginApi
         function onPluginSettingsChanged() {
             // Update the local properties on change
-            root.orientation = root.pluginApi.pluginSettings.orientation || 0
+            root.orientation = root.pluginApi?.pluginSettings?.orientation || 0
         }
     }
 
@@ -62,7 +62,7 @@ ColumnLayout {
     * Save settings functionality
     ********************************/
     function saveSettings() {
-        if(!pluginApi) {
+        if(pluginApi == null) {
             Logger.e("mpvpaper", "Cannot save: pluginApi is null");
             return;
         }

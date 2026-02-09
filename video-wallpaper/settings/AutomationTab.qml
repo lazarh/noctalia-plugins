@@ -17,9 +17,9 @@ ColumnLayout {
     required property var pluginApi
     required property bool enabled
 
-    property bool   automation:     pluginApi.pluginSettings.automation     || false
-    property string automationMode: pluginApi.pluginSettings.automationMode || "random"
-    property real   automationTime: pluginApi.pluginSettings.automationTime || 5 * 60
+    property bool   automation:     pluginApi?.pluginSettings?.automation     || false
+    property string automationMode: pluginApi?.pluginSettings?.automationMode || pluginApi?.manifest?.metadata?.defaultSettings?.automationMode || ""
+    property real   automationTime: pluginApi?.pluginSettings?.automationTime || pluginApi?.manifest?.metadata?.defaultSettings?.automationTime || 0
 
 
     /***************************
@@ -111,9 +111,9 @@ ColumnLayout {
         target: root.pluginApi
         function onPluginSettingsChanged() {
             // Update the local properties on change
-            root.automation = root.pluginApi?.pluginSettings?.automation || false
-            root.automationMode = root.pluginApi?.pluginSettings?.automationMode || "random"
-            root.automationTime = root.pluginApi?.pluginSettings?.automationTime || 60
+            root.automation =     root.pluginApi?.pluginSettings?.automation     || false
+            root.automationMode = root.pluginApi?.pluginSettings?.automationMode || root.pluginApi?.manifest?.metadata?.defaultSettings?.automationMode || ""
+            root.automationTime = root.pluginApi?.pluginSettings?.automationTime || root.pluginApi?.manifest?.metadata?.defaultSettings?.automationTime || 0
         }
     }
 
@@ -122,7 +122,7 @@ ColumnLayout {
     * Save settings functionality
     ********************************/
     function saveSettings() {
-        if(!pluginApi) {
+        if(pluginApi == null) {
             Logger.e("video-wallpaper", "Cannot save, pluginApi is null");
             return;
         }
