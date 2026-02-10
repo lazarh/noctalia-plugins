@@ -55,17 +55,17 @@
     {
       "id": "calibre-provider",
       "name": "Calibre Provider",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "official": false,
       "author": "Krendil",
       "description": "Search for books in your Calibre library",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
-      "minNoctaliaVersion": "4.3.0",
+      "minNoctaliaVersion": "4.4.1",
       "license": "MIT",
       "tags": [
         "Launcher"
       ],
-      "lastUpdated": "2026-02-07T16:34:02+01:00"
+      "lastUpdated": "2026-02-10T10:12:36-05:00"
     },
     {
       "id": "catwalk",
@@ -108,18 +108,18 @@
     {
       "id": "currency-exchange",
       "name": "Currency Exchange",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "official": false,
       "author": "balor",
       "description": "Currency conversion utility via launcher and bar widget",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
-      "minNoctaliaVersion": "4.1.2",
+      "minNoctaliaVersion": "4.4.1",
       "license": "MIT",
       "tags": [
         "Launcher",
         "Utility"
       ],
-      "lastUpdated": "2026-01-30T13:31:45-05:00"
+      "lastUpdated": "2026-02-10T10:12:36-05:00"
     },
     {
       "id": "dns-switcher",
@@ -202,34 +202,34 @@
     {
       "id": "kagi-quick-search",
       "name": "Kagi Quick Search",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": false,
       "author": "Kainoa Kanter",
       "description": "Get AI answers from Kagi in your launcher",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
-      "minNoctaliaVersion": "3.8.3",
+      "minNoctaliaVersion": "4.4.1",
       "license": "MIT",
       "tags": [
         "Launcher",
         "Productivity"
       ],
-      "lastUpdated": "2026-01-08T18:22:34-08:00"
+      "lastUpdated": "2026-02-10T10:12:36-05:00"
     },
     {
       "id": "kaomoji-provider",
       "name": "Kaomoji Provider",
-      "version": "1.0.2",
+      "version": "1.0.3",
       "official": true,
       "author": "Noctalia Team",
       "description": "Browse and search kaomoji emoticons from the launcher",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
-      "minNoctaliaVersion": "3.9.0",
+      "minNoctaliaVersion": "4.4.1",
       "license": "MIT",
       "tags": [
         "Launcher",
         "Fun"
       ],
-      "lastUpdated": "2026-01-25T13:25:41-05:00"
+      "lastUpdated": "2026-02-10T10:12:36-05:00"
     },
     {
       "id": "keybind-cheatsheet",
@@ -557,33 +557,33 @@
     {
       "id": "translator",
       "name": "Translator",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "official": false,
       "author": "Cleboost",
       "description": "Quick translate in launcher",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
-      "minNoctaliaVersion": "1.0.0",
+      "minNoctaliaVersion": "4.4.1",
       "license": "MIT",
       "tags": [
         "Launcher"
       ],
-      "lastUpdated": "2026-01-25T13:43:56-05:00"
+      "lastUpdated": "2026-02-10T10:12:36-05:00"
     },
     {
       "id": "unicode-picker",
       "name": "Unicode Picker",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "official": false,
       "author": "Daddeffe",
       "description": "Browse and search Unicode characters from the launcher",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
-      "minNoctaliaVersion": "3.9.0",
+      "minNoctaliaVersion": "4.4.1",
       "license": "MIT",
       "tags": [
         "Launcher",
         "Utility"
       ],
-      "lastUpdated": "2026-01-25T17:22:17-08:00"
+      "lastUpdated": "2026-02-10T10:12:36-05:00"
     },
     {
       "id": "update-count",
