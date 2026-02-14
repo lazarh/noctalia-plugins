@@ -140,7 +140,7 @@ Item {
                                     const action = modelData.action || "started";
                                     return pluginApi?.tr("history.action." + action) || action;
                                 }
-                                color: modelData.action === "stopped" ? Color.mError : Color.mPrimary
+                                color: (modelData.action || "started") === "stopped" ? Color.resolveColorKey("error") : Color.resolveColorKey("primary")
                                 font.weight: Style.fontWeightBold
                                 pointSize: Style.fontSizeS
                               }
