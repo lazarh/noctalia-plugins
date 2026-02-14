@@ -4,6 +4,10 @@ on:
   pull_request_target:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   assign-reviewers:
     runs-on: ubuntu-latest
@@ -85,8 +89,16 @@ jobs:
           author_mentions=$(printf '@%s ' "${author_list[@]}")
           
           # Post appropriate comment based on number of plugins
+          comment_body=""
           if [[ ${#plugin_dirs[@]} -eq 1 ]]; then
-            gh pr comment $PR_NUMBER --body "${author_mentions}- this PR modifies your plugin. Please review when you have a chance."
+            comment_body="${author_mentions}- this PR modifies your plugin. Please review when you have a chance."
           else
-            gh pr comment $PR_NUMBER --body "${author_mentions}- this PR modifies your plugins. Please review when you have a chance."
+            comment_body="${author_mentions}- this PR modifies your plugins. Please review when you have a chance."
           fi
+          
+          # Post comment using REST API directly instead of gh CLI
+          curl -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/$REPO/issues/$PR_NUMBER/comments" \
+            -d "{\"body\":\"$comment_body\"}"
