@@ -398,7 +398,7 @@
     {
       "id": "polkit-agent",
       "name": "Polkit Agent",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "official": true,
       "author": "Noctalia Team <team@noctalia.dev>",
       "description": "Provides a Polkit authentication agent (requires quickshell-git).",
@@ -409,7 +409,7 @@
         "System",
         "Security"
       ],
-      "lastUpdated": "2026-02-13T15:45:28+01:00"
+      "lastUpdated": "2026-02-15T22:18:12+01:00"
     },
     {
       "id": "pomodoro",
