@@ -72,10 +72,19 @@ Item {
     onTriggered: fetchNews()
   }
 
+  // Watch for when pluginApi becomes available
+  onPluginApiChanged: {
+    if (pluginApi && apiKey && apiKey !== "YOUR_API_KEY_HERE") {
+      console.log("[News Plugin] PluginApi loaded, API key:", apiKey ? "configured" : "not configured");
+      Qt.callLater(fetchNews);
+    }
+  }
+
   // Fetch news when API key becomes available
   onApiKeyChanged: {
+    console.log("[News Plugin] API key changed:", apiKey ? "configured" : "not configured");
     if (apiKey && apiKey !== "YOUR_API_KEY_HERE") {
-      fetchNews();
+      Qt.callLater(fetchNews);
     }
   }
 
