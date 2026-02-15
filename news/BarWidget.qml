@@ -30,13 +30,13 @@ Item {
   property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
   // Get settings from configuration
-  readonly property string apiKey: cfg.apiKey ?? defaults.apiKey ?? "YOUR_API_KEY_HERE"
-  readonly property string country: cfg.country ?? defaults.country ?? "us"
-  readonly property string category: cfg.category ?? defaults.category ?? "general"
-  readonly property int refreshInterval: cfg.refreshInterval ?? defaults.refreshInterval ?? 30
-  readonly property int maxHeadlines: cfg.maxHeadlines ?? defaults.maxHeadlines ?? 10
-  readonly property int rollingSpeed: cfg.rollingSpeed ?? defaults.rollingSpeed ?? 50
-  readonly property int widgetWidth: cfg.widgetWidth ?? defaults.widgetWidth ?? 300
+  readonly property string apiKey: cfg.apiKey || defaults.apiKey || "YOUR_API_KEY_HERE"
+  readonly property string country: cfg.country || defaults.country || "us"
+  readonly property string category: cfg.category || defaults.category || "general"
+  readonly property int refreshInterval: cfg.refreshInterval || defaults.refreshInterval || 30
+  readonly property int maxHeadlines: cfg.maxHeadlines || defaults.maxHeadlines || 10
+  readonly property int rollingSpeed: cfg.rollingSpeed || defaults.rollingSpeed || 50
+  readonly property int widgetWidth: cfg.widgetWidth || defaults.widgetWidth || 300
 
   // News data
   property var newsData: []
@@ -67,9 +67,16 @@ Item {
   Timer {
     id: refreshTimer
     interval: refreshInterval * 60 * 1000
-    running: true
+    running: apiKey !== "YOUR_API_KEY_HERE" && apiKey !== ""
     repeat: true
     onTriggered: fetchNews()
+  }
+
+  // Fetch news when API key becomes available
+  onApiKeyChanged: {
+    if (apiKey && apiKey !== "YOUR_API_KEY_HERE") {
+      fetchNews();
+    }
   }
 
   // Update combined news text
@@ -313,6 +320,9 @@ Item {
   }
 
   Component.onCompleted: {
-    fetchNews();
+    // Only fetch if API key is already available
+    if (apiKey && apiKey !== "YOUR_API_KEY_HERE") {
+      fetchNews();
+    }
   }
 }

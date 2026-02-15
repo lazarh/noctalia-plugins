@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.1] - 2026-02-15
+
+### Fixed
+- Fixed API key not being loaded on startup
+- Added onApiKeyChanged handler to fetch news when settings load
+- Only start refresh timer when API key is configured
+- Use ?? operator instead of || for proper null/undefined handling
+
 ## [1.1.0] - 2026-02-15
 
 ### Added
