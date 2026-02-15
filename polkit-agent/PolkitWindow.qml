@@ -37,18 +37,26 @@ PanelWindow {
 
     color: "transparent"
 
-    // Consume all input
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {}
-        onPressed: {}
-        onReleased: {}
-        hoverEnabled: true
-    }
-
     Item {
         id: contentContainer
         anchors.fill: parent
+        focus: true
+
+        Keys.onPressed: function(event) {
+            if (!flow) return;
+            
+            if (Keybinds.checkKey(event, "escape", Settings)) {
+                flow.cancelAuthenticationRequest();
+                event.accepted = true;
+            } else if (Keybinds.checkKey(event, "enter", Settings)) {
+                if (passwordInput.text !== "") {
+                     flow.submit(passwordInput.text);
+                     passwordInput.text = "";
+                }
+                event.accepted = true;
+            }
+        }
+
         
         transform: Translate {
             id: shakeTranslate
