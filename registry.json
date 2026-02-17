@@ -605,18 +605,18 @@
     {
       "id": "timer",
       "name": "Timer",
-      "version": "1.0.12",
+      "version": "1.1.0",
       "official": true,
       "author": "Noctalia Team",
       "description": "A timer and stopwatch plugin for the bar & control center.",
       "repository": "https://github.com/noctalia-dev/noctalia-plugins",
-      "minNoctaliaVersion": "3.8.0",
+      "minNoctaliaVersion": "4.4.4",
       "license": "MIT",
       "tags": [
         "Bar",
         "Utility"
       ],
-      "lastUpdated": "2026-02-06T16:15:19-05:00"
+      "lastUpdated": "2026-02-17T08:29:13-05:00"
     },
     {
       "id": "todo",
