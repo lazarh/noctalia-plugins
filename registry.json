@@ -528,6 +528,21 @@
       "lastUpdated": "2026-02-16T20:20:28+01:00"
     },
     {
+      "id": "ramadan-iftar",
+      "name": "Ramadan Iftar",
+      "version": "1.0.0",
+      "official": false,
+      "author": "User",
+      "description": "Shows prayer times and a countdown to Iftar during Ramadan.",
+      "minNoctaliaVersion": "4.1.0",
+      "license": "MIT",
+      "tags": [
+        "Bar",
+        "Panel"
+      ],
+      "lastUpdated": "2026-02-19T09:19:18-05:00"
+    },
+    {
       "id": "rss-feed",
       "name": "RSS Feed Reader",
       "version": "1.0.3",
