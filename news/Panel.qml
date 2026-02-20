@@ -14,6 +14,9 @@ Item {
   property real contentPreferredHeight: 500 * Style.uiScaleRatio
   readonly property bool allowAttach: true
   anchors.fill: parent
+  
+  // Shorthand for accessing Main singleton
+  readonly property var main: pluginApi?.mainInstance
 
   Rectangle {
     id: panelContainer
@@ -57,7 +60,10 @@ Item {
               icon: "x"
               tooltipText: "Close"
               baseSize: Style.baseWidgetSize * 0.8
-              onClicked: PanelService.closeFloatingPanel()
+              onClicked: {
+                if (pluginApi)
+                  pluginApi.withCurrentScreen(s => pluginApi.closePanel(s));
+              }
             }
           }
         }
@@ -71,7 +77,7 @@ Item {
 
         // Error message
         Rectangle {
-          visible: Main.errorMessage.length > 0
+          visible: main && main.errorMessage && main.errorMessage.length > 0
           Layout.fillWidth: true
           Layout.preferredHeight: errorRow.implicitHeight + (Style.marginXL)
           color: Qt.alpha(Color.mError, 0.1)
@@ -92,7 +98,7 @@ Item {
             }
 
             NText {
-              text: Main.errorMessage
+              text: main ? main.errorMessage : ""
               color: Color.mError
               pointSize: Style.fontSizeS
               wrapMode: Text.Wrap
@@ -118,7 +124,7 @@ Item {
 
             // Loading state
             NBox {
-              visible: Main.isLoading
+              visible: main && main.isLoading
               Layout.fillWidth: true
               Layout.preferredHeight: loadingColumn.implicitHeight + Style.marginXL
 
@@ -154,7 +160,7 @@ Item {
 
             // Empty state
             NBox {
-              visible: !Main.isLoading && Main.newsData.length === 0 && Main.errorMessage.length === 0
+              visible: main && !main.isLoading && (!main.newsData || main.newsData.length === 0) && (!main.errorMessage || main.errorMessage.length === 0)
               Layout.fillWidth: true
               Layout.preferredHeight: emptyColumn.implicitHeight + Style.marginXL
 
@@ -190,12 +196,12 @@ Item {
 
             // News list
             ColumnLayout {
-              visible: !Main.isLoading && Main.newsData.length > 0
+              visible: main && !main.isLoading && main.newsData && main.newsData.length > 0
               width: parent.width
               spacing: Style.marginS
 
               NText {
-                text: "Headlines (" + Main.newsData.length + ")"
+                text: main && main.newsData ? "Headlines (" + main.newsData.length + ")" : "Headlines"
                 pointSize: Style.fontSizeS
                 color: Color.mSecondary
                 font.weight: Style.fontWeightBold
@@ -203,7 +209,7 @@ Item {
               }
 
               Repeater {
-                model: Main.newsData
+                model: main && main.newsData ? main.newsData : []
 
                 NBox {
                   id: newsItem

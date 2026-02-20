@@ -40,6 +40,9 @@ Item {
 
   // News data (stored in Main singleton for sharing with Panel)
   property string allNewsText: ""
+  
+  // Shorthand for accessing Main singleton
+  readonly property var main: pluginApi?.mainInstance
 
   // API configuration
   readonly property string baseUrl: "https://newsapi.org/v2"
@@ -77,9 +80,9 @@ Item {
     }
   }
 
-  // Update combined news text when Main.newsData changes
+  // Update combined news text when main.newsData changes
   Connections {
-    target: Main
+    target: main
     function onNewsDataChanged() {
       updateAllNewsText();
     }
@@ -95,15 +98,15 @@ Item {
 
   // Update combined news text
   function updateAllNewsText() {
-    if (Main.newsData.length === 0) {
+    if (!main || !main.newsData || main.newsData.length === 0) {
       allNewsText = ""
       return
     }
     
     var combined = ""
-    for (var i = 0; i < Main.newsData.length; i++) {
+    for (var i = 0; i < main.newsData.length; i++) {
       if (i > 0) combined += "  •  "
-      combined += "[" + (i + 1) + "] " + (Main.newsData[i]?.title || "No headline")
+      combined += "[" + (i + 1) + "] " + (main.newsData[i]?.title || "No headline")
     }
     allNewsText = combined
   }
@@ -111,12 +114,14 @@ Item {
 
   // Fetch news
   function fetchNews() {
-    Main.isLoading = true
-    Main.errorMessage = ""
+    if (!main) return;
+    
+    main.isLoading = true
+    main.errorMessage = ""
 
     if (!apiKey || apiKey === "YOUR_API_KEY_HERE") {
-      Main.errorMessage = "API key not configured"
-      Main.isLoading = false
+      main.errorMessage = "API key not configured"
+      main.isLoading = false
       console.log("[News Plugin] Error: API key not configured")
       return
     }
@@ -137,34 +142,34 @@ Item {
             var response = JSON.parse(xhr.responseText)
             if (response.status === "ok" && response.articles) {
               console.log("[News Plugin] Success: Fetched", response.articles.length, "articles")
-              Main.newsData = response.articles.slice(0, maxHeadlines)
-              Main.isLoading = false
-              Main.errorMessage = ""
+              main.newsData = response.articles.slice(0, maxHeadlines)
+              main.isLoading = false
+              main.errorMessage = ""
             } else {
-              Main.errorMessage = response.message || "API error"
-              Main.isLoading = false
+              main.errorMessage = response.message || "API error"
+              main.isLoading = false
               console.log("[News Plugin] API Error:", response.message || "Unknown error")
             }
           } catch (e) {
-            Main.errorMessage = "Failed to parse response"
-            Main.isLoading = false
+            main.errorMessage = "Failed to parse response"
+            main.isLoading = false
             console.log("[News Plugin] Parse Error:", e.toString())
           }
         } else if (xhr.status === 401) {
-          Main.errorMessage = "Invalid API key"
-          Main.isLoading = false
+          main.errorMessage = "Invalid API key"
+          main.isLoading = false
           console.log("[News Plugin] Error: Invalid API key (401)")
         } else if (xhr.status === 429) {
-          Main.errorMessage = "Rate limit exceeded"
-          Main.isLoading = false
+          main.errorMessage = "Rate limit exceeded"
+          main.isLoading = false
           console.log("[News Plugin] Error: Rate limit exceeded (429)")
         } else if (xhr.status === 0) {
-          Main.errorMessage = "Network error"
-          Main.isLoading = false
+          main.errorMessage = "Network error"
+          main.isLoading = false
           console.log("[News Plugin] Error: Network error or CORS issue (0)")
         } else {
-          Main.errorMessage = "HTTP error " + xhr.status
-          Main.isLoading = false
+          main.errorMessage = "HTTP error " + xhr.status
+          main.isLoading = false
           console.log("[News Plugin] Error: HTTP", xhr.status)
         }
       }
@@ -209,9 +214,10 @@ Item {
         clip: true
 
         property string displayText: {
-          if (Main.errorMessage !== "") return Main.errorMessage
-          if (Main.isLoading) return "Loading news..."
-          if (Main.newsData.length === 0) return "No news available"
+          if (!main) return "Loading..."
+          if (main.errorMessage !== "") return main.errorMessage
+          if (main.isLoading) return "Loading news..."
+          if (!main.newsData || main.newsData.length === 0) return "No news available"
           return allNewsText
         }
 
@@ -220,7 +226,7 @@ Item {
           y: (parent.height - height) / 2
           text: parent.displayText
           color: {
-            if (Main.errorMessage !== "") return Color.mError
+            if (main && main.errorMessage !== "") return Color.mError
             return mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
           }
           pointSize: root.barFontSize
@@ -230,7 +236,7 @@ Item {
           
           SequentialAnimation {
             id: textAnimation
-            running: newsText.contentWidth > newsText.parent.width && !Main.isLoading && Main.errorMessage === ""
+            running: main && newsText.contentWidth > newsText.parent.width && !main.isLoading && main.errorMessage === ""
             loops: Animation.Infinite
             
             PauseAnimation { duration: 2000 }
@@ -289,7 +295,7 @@ Item {
       }
 
       NText {
-        text: Main.newsData.length > 0 ? Main.newsData.length.toString() : "?"
+        text: (main && main.newsData && main.newsData.length > 0) ? main.newsData.length.toString() : "?"
         color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
         pointSize: root.barFontSize * 0.65
         applyUiScale: false
@@ -321,8 +327,8 @@ Item {
     }
 
     onEntered: {
-      var tooltip = Main.newsData.length > 0 
-        ? Main.newsData.length + " headlines\nLeft-click to view • Right-click for settings"
+      var tooltip = (main && main.newsData && main.newsData.length > 0)
+        ? main.newsData.length + " headlines\nLeft-click to view • Right-click for settings"
         : "Left-click to view • Right-click for settings";
       TooltipService.show(root, tooltip, BarService.getTooltipDirection());
     }
