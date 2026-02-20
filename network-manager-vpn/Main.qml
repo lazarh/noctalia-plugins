@@ -10,9 +10,8 @@ QtObject {
 
     property var vpnList: []
     property bool anyConnected: false
-    property bool isLoading: false
 
-    property var _pendingNames: ({})
+    property var _pending: ({})
 
     // Needed only to detect disconnection not initiated by the user
     property var _pollTimer: Timer {
@@ -25,7 +24,7 @@ QtObject {
     property var _lines: []
 
     property var _listProc: Process {
-        command: ["nmcli", "-t", "-f", "NAME,TYPE,STATE", "connection", "show"]
+        command: ["nmcli", "-t", "-f", "NAME,TYPE,STATE,UUID", "connection", "show"]
         running: true
 
         stdout: SplitParser {
@@ -38,86 +37,105 @@ QtObject {
         onExited: (exitCode) => {
             if (exitCode === 0) {
                 const parsed = []
-                const newPending = Object.assign({}, root._pendingNames)
+                const newPending = Object.assign({}, root._pending)
                 for (const line of root._lines) {
                     const parts = line.split(":")
                     if (parts.length >= 3) {
                         const name  = parts[0]
                         const type  = parts[1]
                         const state = parts[2]
+                        const uuid = parts[3]
                         if (type === "vpn" || type === "wireguard") {
-                            if (newPending[name]) {
-                                const wasConnecting = newPending[name] === "connect"
+                            if (newPending[uuid]) {
+                                const wasConnecting = newPending[uuid] === "connect"
                                 if (wasConnecting && state === "activated")
-                                    delete newPending[name]
+                                    delete newPending[uuid]
                                 else if (!wasConnecting && state !== "activated")
-                                    delete newPending[name]
+                                    delete newPending[uuid]
                             }
                             parsed.push({
                                 name,
                                 type,
                                 connected: state === "activated",
-                                isLoading: !!newPending[name]
+                                isLoading: !!newPending[uuid],
+                                uuid
                             })
                         }
                     }
                 }
-                root._pendingNames = newPending
+                root._pending = newPending
                 root.vpnList = parsed
                 root.anyConnected = parsed.some(v => v.connected)
             }
             root._lines = []
-            root.isLoading = false
         }
     }
 
     property var _connectProc: Process {
         property string targetName: ""
-        command: ["nmcli", "connection", "up", targetName]
+        property string targetUuid: ""
+        command: ["nmcli", "connection", "up", "uuid", targetUuid]
         onExited: (exitCode) => {
-            root.isLoading = false
             if (exitCode === 0)
-                ToastService.showNotice("VPN «" + targetName + "» connected")
+                ToastService.showNotice(pluginApi?.tr("toast.connectedTo", { name: targetName }) || "Connected to " + targetName)
             else
-                ToastService.showError("Failed to connect «" + targetName + "»")
+                ToastService.showError(pluginApi?.tr("toast.connectionError", { name: targetName }) || "Failed connect to " + targetName)
             root.refresh()
         }
     }
 
     property var _disconnectProc: Process {
         property string targetName: ""
-        command: ["nmcli", "connection", "down", targetName]
+        property string targetUuid: ""
+        command: ["nmcli", "connection", "down", "uuid", targetUuid]
         onExited: (exitCode) => {
-            root.isLoading = false
             if (exitCode === 0)
-                ToastService.showNotice("VPN «" + targetName + "» disconnected")
+                ToastService.showNotice(pluginApi?.tr("toast.disconnectedFrom", { name: targetName }) || "Disconnected from " + targetName)
             else
-                ToastService.showError("Failed to disconnect «" + targetName + "»")
+                ToastService.showError(pluginApi?.tr("toast.disconnectionError", { name: targetName }) || "Failed disconnect from " + targetName)
             root.refresh()
         }
     }
 
     function refresh() {
+        Logger.i("NetworkManagerVPN", "Refresh")
+
         _listProc.running = true
     }
 
-    function connectTo(name) {
-        isLoading = true
-        const p = Object.assign({}, _pendingNames)
-        p[name] = "connect"
-        _pendingNames = p
-        vpnList = vpnList.map(v => v.name === name ? Object.assign({}, v, { isLoading: true }) : v)
+    function connectTo(uuid) {
+        const p = Object.assign({}, _pending)
+        p[uuid] = "connect"
+        _pending = p
+        let name = ""
+        vpnList = vpnList.map(v => {
+            if (v.uuid !== uuid) {
+                return v
+            }
+            
+            name = v.name
+            return Object.assign({}, v, { isLoading: true })
+        })
         _connectProc.targetName = name
+        _connectProc.targetUuid = uuid
         _connectProc.running = true
     }
 
-    function disconnectFrom(name) {
-        isLoading = true
-        const p = Object.assign({}, _pendingNames)
-        p[name] = "disconnect"
-        _pendingNames = p
-        vpnList = vpnList.map(v => v.name === name ? Object.assign({}, v, { isLoading: true }) : v)
+    function disconnectFrom(uuid) {
+        const p = Object.assign({}, _pending)
+        p[uuid] = "disconnect"
+        _pending = p
+        let name = ""
+        vpnList = vpnList.map(v => {
+            if (v.uuid !== uuid) {
+                return v
+            }
+            
+            name = v.name
+            return Object.assign({}, v, { isLoading: true })
+        })
         _disconnectProc.targetName = name
+        _disconnectProc.targetUuid = uuid
         _disconnectProc.running = true
     }
 

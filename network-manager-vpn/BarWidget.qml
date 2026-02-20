@@ -49,7 +49,7 @@ Item {
             NIcon {
                 id: statusIcon
                 icon: root.isLoading ? "reload"
-                    : root.anyConnected ? "lock" : "lock-open"
+                    : root.anyConnected ? "shield-lock" : "shield"
                 color: mouseArea.containsMouse ? Color.mOutline : Color.mOnSurface
 
                 RotationAnimation on rotation {
