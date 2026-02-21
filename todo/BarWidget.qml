@@ -23,7 +23,7 @@ Item {
   readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName)
 
   readonly property real contentWidth: root.isVertical ? root.capsuleHeight : horizontalRow.implicitWidth + Style.marginM * 2
-  readonly property real contentHeight: root.isVertical ? verticalColumn.implicitHeight + Style.marginM * 2 : root.capsuleHeight
+  readonly property real contentHeight: root.isVertical ? root.capsuleHeight : root.capsuleHeight
 
   readonly property int todoCount: getIntValue(pluginApi?.pluginSettings?.count, getIntValue(pluginApi?.manifest?.metadata?.defaultSettings?.count, 0))
   readonly property int completedCount: getIntValue(pluginApi?.pluginSettings?.completedCount, getIntValue(pluginApi?.manifest?.metadata?.defaultSettings?.completedCount, 0))
