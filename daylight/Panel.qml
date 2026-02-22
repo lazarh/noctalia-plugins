@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.Commons
+import qs.Services.Location
 import qs.Services.UI
 import qs.Widgets
 
@@ -18,6 +19,68 @@ Item {
 
   anchors.fill: parent
 
+  // Custom fetch results
+  property bool customIsDay: true
+  property var customSunrise: null
+  property var customSunset: null
+  property bool hasFetched: false
+
+  property bool isDay: hasFetched ? customIsDay : (LocationService.data?.weather?.current_weather?.is_day ?? true)
+  property var sunrise: hasFetched ? customSunrise : (LocationService.data?.weather?.daily?.sunrise?.[0] ?? null)
+  property var sunset: hasFetched ? customSunset : (LocationService.data?.weather?.daily?.sunset?.[0] ?? null)
+
+  property string sunriseTime: {
+    if (!sunrise) return "--:--"
+    return I18n.locale.toString(new Date(sunrise), "HH:mm")
+  }
+
+  property string sunsetTime: {
+    if (!sunset) return "--:--"
+    return I18n.locale.toString(new Date(sunset), "HH:mm")
+  }
+
+  property string daylightDuration: {
+    if (!sunrise || !sunset) return "--"
+    const diff = new Date(sunset) - new Date(sunrise)
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+    return `${hours}h ${minutes}m`
+  }
+
+  function fetchForLocation(location) {
+    var xhr = new XMLHttpRequest()
+    xhr.open("GET", "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(location) + "&count=1")
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText)
+        if (data.results && data.results.length > 0) {
+          fetchWeather(data.results[0].latitude, data.results[0].longitude)
+        }
+      }
+    }
+    xhr.send()
+  }
+
+  function fetchWeather(lat, lon) {
+    var xhr = new XMLHttpRequest()
+    xhr.open("GET", "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=sunrise,sunset&current_weather=true&timezone=auto")
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText)
+        customIsDay = (data.current_weather?.is_day ?? 1) === 1
+        customSunrise = data.daily?.sunrise?.[0] ?? null
+        customSunset = data.daily?.sunset?.[0] ?? null
+        hasFetched = true
+      }
+    }
+    xhr.send()
+  }
+
+  Component.onCompleted: {
+    var loc = pluginApi?.pluginSettings?.location ?? ""
+    if (loc !== "") fetchForLocation(loc)
+  }
+
   Rectangle {
     id: panelContainer
     anchors.fill: parent
@@ -30,15 +93,13 @@ Item {
       }
       spacing: Style.marginM
 
-      // Sun icon
       NIcon {
         Layout.alignment: Qt.AlignHCenter
-        icon: pluginApi?.barWidgetInstance?.isDay ?? true ? "sun" : "moon-stars"
+        icon: root.isDay ? "sun" : "moon-stars"
         pointSize: Style.fontSizeXXL * Style.uiScaleRatio
         color: Color.mPrimary
       }
 
-      // Data rows
       Rectangle {
         Layout.fillWidth: true
         Layout.preferredHeight: dataColumn.implicitHeight + Style.marginM * 2
@@ -55,16 +116,14 @@ Item {
 
           RowLayout {
             Layout.fillWidth: true
-
             NText {
               text: pluginApi?.tr("panel.sunrise") ?? "Sunrise"
               font.pointSize: Style.fontSizeS
               color: Color.mOnSurfaceVariant
               Layout.fillWidth: true
             }
-
             NText {
-              text: pluginApi?.barWidgetInstance?.sunriseTime ?? "--:--"
+              text: root.sunriseTime
               font.pointSize: Style.fontSizeS
               font.weight: Font.Medium
               color: Color.mOnSurface
@@ -73,16 +132,14 @@ Item {
 
           RowLayout {
             Layout.fillWidth: true
-
             NText {
               text: pluginApi?.tr("panel.sunset") ?? "Sunset"
               font.pointSize: Style.fontSizeS
               color: Color.mOnSurfaceVariant
               Layout.fillWidth: true
             }
-
             NText {
-              text: pluginApi?.barWidgetInstance?.sunsetTime ?? "--:--"
+              text: root.sunsetTime
               font.pointSize: Style.fontSizeS
               font.weight: Font.Medium
               color: Color.mOnSurface
@@ -91,16 +148,14 @@ Item {
 
           RowLayout {
             Layout.fillWidth: true
-
             NText {
               text: pluginApi?.tr("panel.daylight") ?? "Daylight"
               font.pointSize: Style.fontSizeS
               color: Color.mOnSurfaceVariant
               Layout.fillWidth: true
             }
-
             NText {
-              text: pluginApi?.barWidgetInstance?.daylightDuration ?? "--"
+              text: root.daylightDuration
               font.pointSize: Style.fontSizeS
               font.weight: Font.Medium
               color: Color.mOnSurface
