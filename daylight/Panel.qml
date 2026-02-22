@@ -52,9 +52,10 @@ Item {
   }
 
   function fetchForLocation(location) {
-    Logger.i("Daylight", "Geocoding location:", location)
+    var city = location.split(",")[0].trim()
+    Logger.i("Daylight", "Geocoding location:", city)
     var xhr = new XMLHttpRequest()
-    xhr.open("GET", "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(location) + "&count=1")
+    xhr.open("GET", "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(city) + "&count=1")
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
         var data = JSON.parse(xhr.responseText)
