@@ -1,7 +1,7 @@
 {
   "id": "daylight",
   "name": "Daylight",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "minNoctaliaVersion": "4.3.0",
   "author": "LazarH",
   "license": "MIT",

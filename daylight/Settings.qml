@@ -18,13 +18,13 @@ ColumnLayout {
 
     NText {
         text: "Location"
-        fontSize: Style.textSizeL
+        font.pointSize: Style.textSizeL
         font.weight: Font.Medium
     }
 
     NText {
         text: "Enter your location in format: city, country"
-        fontSize: Style.textSizeS
+        font.pointSize: Style.textSizeS
         font.weight: Font.Light
         textColor: Style.textColorMuted
         Layout.bottomMargin: Style.spacingS
