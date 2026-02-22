@@ -1,4 +1,7 @@
 {
   "name": "Daylight",
-  "description": "Shows sunrise, sunset times and daylight duration with sun/moon icon"
+  "description": "Shows sunrise, sunset times and daylight duration with sun/moon icon",
+  "menu": {
+    "settings": "Widget settings"
+  }
 }

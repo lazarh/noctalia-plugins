@@ -1,128 +1,85 @@
-import QtQuick
-import QtQuick.Layouts
 import Quickshell
 import qs.Commons
 import qs.Services.Location
 import qs.Services.UI
 import qs.Widgets
 
-Item {
-    id: root
+NIconButton {
+  id: root
 
-    // Required properties
-    property var pluginApi: null
-    property ShellScreen screen
-    property string widgetId: ""
-    property string section: ""
+  property var pluginApi: null
 
-    readonly property string screenName: screen ? screen.name : ""
-    readonly property string barPosition: Settings.getBarPositionForScreen(screenName)
-    readonly property bool isVertical: barPosition === "left" || barPosition === "right"
-    readonly property real barHeight: Style.getBarHeightForScreen(screenName)
-    readonly property real capsuleHeight: Style.getCapsuleHeightForScreen(screenName)
-    readonly property real barFontSize: Style.getBarFontSizeForScreen(screenName)
+  property ShellScreen screen
+  property string widgetId: ""
+  property string section: ""
 
-    readonly property real contentWidth: isVertical ? root.barHeight : implicitWidth
-    readonly property real contentHeight: isVertical ? implicitHeight : root.capsuleHeight
+  property var cfg: pluginApi?.pluginSettings || ({})
+  property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
-    implicitWidth: visualCapsule.width
-    implicitHeight: visualCapsule.height
+  // Weather data
+  property bool isDay: LocationService.data?.weather?.current_weather?.is_day ?? true
+  property var sunrise: LocationService.data?.weather?.daily?.sunrise?.[0] ?? null
+  property var sunset: LocationService.data?.weather?.daily?.sunset?.[0] ?? null
 
-    // Settings
-    property var cfg: pluginApi?.pluginSettings || ({})
-    property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
-    property string location: cfg.location ?? defaults.location
+  // Computed values
+  property string sunriseTime: {
+    if (!sunrise) return "--:--"
+    const date = new Date(sunrise)
+    return I18n.locale.toString(date, "HH:mm")
+  }
 
-    // Weather data
-    property bool isDay: LocationService.data?.weather?.current_weather?.is_day ?? true
-    property var sunrise: LocationService.data?.weather?.daily?.sunrise?.[0] ?? null
-    property var sunset: LocationService.data?.weather?.daily?.sunset?.[0] ?? null
+  property string sunsetTime: {
+    if (!sunset) return "--:--"
+    const date = new Date(sunset)
+    return I18n.locale.toString(date, "HH:mm")
+  }
 
-    // Computed values
-    property string sunriseTime: {
-        if (!sunrise) return "--:--"
-        const date = new Date(sunrise)
-        return I18n.locale.toString(date, "HH:mm")
+  property string daylightDuration: {
+    if (!sunrise || !sunset) return "--"
+    const start = new Date(sunrise)
+    const end = new Date(sunset)
+    const diff = end - start
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+    return `${hours}h ${minutes}m`
+  }
+
+  icon: root.isDay ? "sun" : "moon-stars"
+  tooltipText: `Sunrise: ${root.sunriseTime}  Sunset: ${root.sunsetTime}  Daylight: ${root.daylightDuration}`
+  tooltipDirection: BarService.getTooltipDirection(screen?.name)
+  baseSize: Style.getCapsuleHeightForScreen(screen?.name)
+  applyUiScale: false
+  customRadius: Style.radiusL
+  colorBg: Style.capsuleColor
+
+  border.color: Style.capsuleBorderColor
+  border.width: Style.capsuleBorderWidth
+
+  onClicked: {
+    BarService.openPluginSettings(root.screen, pluginApi.manifest)
+  }
+
+  NPopupContextMenu {
+    id: contextMenu
+
+    model: [
+      {
+        "label": pluginApi?.tr("menu.settings"),
+        "action": "settings",
+        "icon": "settings"
+      },
+    ]
+
+    onTriggered: function (action) {
+      contextMenu.close();
+      PanelService.closeContextMenu(screen);
+      if (action === "settings") {
+        BarService.openPluginSettings(root.screen, pluginApi.manifest);
+      }
     }
+  }
 
-    property string sunsetTime: {
-        if (!sunset) return "--:--"
-        const date = new Date(sunset)
-        return I18n.locale.toString(date, "HH:mm")
-    }
-
-    property string daylightDuration: {
-        if (!sunrise || !sunset) return "--"
-        const start = new Date(sunrise)
-        const end = new Date(sunset)
-        const diff = end - start
-        const hours = Math.floor(diff / (1000 * 60 * 60))
-        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-        return `${hours}h ${minutes}m`
-    }
-
-    Rectangle {
-        id: visualCapsule
-        x: Style.pixelAlignCenter(parent.width, width)
-        y: Style.pixelAlignCenter(parent.height, height)
-        width: root.contentWidth
-        height: root.contentHeight
-        color: mouseArea.containsMouse ? Color.mHover : Style.capsuleColor
-        radius: Style.radiusL
-        border.color: Style.capsuleBorderColor
-        border.width: Style.capsuleBorderWidth
-
-	RowLayout {
-	    id: contentRow
-            anchors.centerIn: parent
-	    spacing: Style.marginS
-	    layoutDirection: pillDirection ? Qt.LeftToRight : Qt.RightToLeft
-
-            NIcon {
-                id: icon
-                icon: root.isDay ? "sun" : "moon-stars"
-                pointSize: Style.barFontSize
-                color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
-	    }
-            Rectangle {
-		id: textBackground
-		color: "transparent"
-		implicitWidth: text.implicitWidth
-		implicitHeight: text.implicitHeight
-		visible: root.isVertical ? true : root.isDay
-
-		Text {
-		    id: text
-		    text: root.isDay ? root.sunriseTime : root.sunsetTime
-		    font.pixelSize: Style.barFontSize
-		    color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
-		}
-	    }
-        }
-
-        MouseArea {
-            id: mouseArea
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-
-            onEntered: {
-                const rows = [
-                    ["Sunrise", root.sunriseTime],
-                    ["Sunset", root.sunsetTime],
-                    ["Daylight", root.daylightDuration]
-                ]
-                TooltipService.show(root, rows, BarService.getTooltipDirection(screenName))
-            }
-
-            onExited: {
-                TooltipService.hide()
-            }
-
-            onClicked: {
-                TooltipService.hide()
-                PanelService.openPluginSettings(pluginApi)
-            }
-        }
-    }
+  onRightClicked: {
+    PanelService.showContextMenu(contextMenu, root, screen);
+  }
 }
