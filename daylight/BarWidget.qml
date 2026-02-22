@@ -74,13 +74,13 @@ Item {
 
         RowLayout {
             anchors.centerIn: parent
-            spacing: Style.spacingS
+            spacing: Style.marginS
 
             NIcon {
                 id: icon
                 icon: root.isDay ? "sun" : "moon-stars"
                 pointSize: root.barFontSize * 1.2
-                color: Style.textColor
+                color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
             }
         }
 
