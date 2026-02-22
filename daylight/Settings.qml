@@ -71,7 +71,7 @@ ColumnLayout {
 
             NText {
                 Layout.fillWidth: true
-                text: "Sunrise and sunset times are fetched from Open-Meteo via Noctalia's built-in Location Service. Make sure Location Service is enabled in Noctalia settings."
+                text: "Sunrise and sunset times are fetched from Open-Meteo via Noctalia's built-in Location Service. Setting a location here will override the default location determined by the Noctalia Location Service."
                 font.pointSize: Style.fontSizeXS
                 color: Color.mOnSurfaceVariant
                 wrapMode: Text.WordWrap
