@@ -88,11 +88,6 @@ NIconButton {
     xhr.send()
   }
 
-  // Check for location changes on hover so settings apply is picked up immediately
-  HoverHandler {
-    onHoveredChanged: if (hovered) root.checkAndFetch()
-  }
-
   // Refresh data every hour so sunrise/sunset stays accurate
   Timer {
     interval: 3600000
@@ -108,7 +103,7 @@ NIconButton {
   }
 
   icon: root.isDay ? "sun" : "moon-stars"
-  tooltipText: `Sunrise: ${root.sunriseTime}  Sunset: ${root.sunsetTime}  Daylight: ${root.daylightDuration}`
+  tooltipText: pluginApi?.tr("widget.tooltip") ?? "Daylight"
   tooltipDirection: BarService.getTooltipDirection(screen?.name)
   baseSize: Style.getCapsuleHeightForScreen(screen?.name)
   applyUiScale: false
@@ -119,7 +114,8 @@ NIconButton {
   border.width: Style.capsuleBorderWidth
 
   onClicked: {
-    BarService.openPluginSettings(root.screen, pluginApi.manifest)
+    checkAndFetch()
+    if (pluginApi) pluginApi.openPanel(root.screen, this)
   }
 
   NPopupContextMenu {

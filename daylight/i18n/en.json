@@ -3,5 +3,13 @@
   "description": "Shows sunrise, sunset times and daylight duration with sun/moon icon",
   "menu": {
     "settings": "Widget settings"
+  },
+  "widget": {
+    "tooltip": "Daylight"
+  },
+  "panel": {
+    "sunrise": "Sunrise",
+    "sunset": "Sunset",
+    "daylight": "Daylight"
   }
 }
