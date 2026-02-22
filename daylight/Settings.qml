@@ -30,7 +30,7 @@ ColumnLayout {
         Layout.bottomMargin: Style.spacingS
     }
 
-    NTextField {
+    NTextInput {
         id: locationField
         Layout.fillWidth: true
         placeholderText: "e.g., London, UK"
