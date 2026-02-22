@@ -1,12 +1,12 @@
 {
   "id": "daylight",
   "name": "Daylight",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minNoctaliaVersion": "4.3.0",
-  "author": "Your Name",
+  "author": "LazarH",
   "license": "MIT",
   "description": "Shows sunrise, sunset times and daylight duration with sun/moon icon",
-  "tags": ["Bar"],
+  "tags": ["Bar", "Fun"],
   "entryPoints": {
     "barWidget": "BarWidget.qml",
     "settings": "Settings.qml"

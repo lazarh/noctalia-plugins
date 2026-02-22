@@ -78,9 +78,9 @@ Item {
 
             NIcon {
                 id: icon
-                iconName: root.isDay ? "weather-clear" : "weather-clear-night"
-                iconSize: root.barFontSize * 1.2
-                iconColor: Style.textColor
+                icon: root.isDay ? "weather-clear" : "weather-clear-night"
+                pointSize: root.barFontSize * 1.2
+                color: Style.textColor
             }
         }
 
