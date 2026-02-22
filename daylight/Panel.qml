@@ -19,15 +19,19 @@ Item {
 
   anchors.fill: parent
 
+  property string pluginLocation: pluginApi?.pluginSettings?.location ?? ""
+
   // Custom fetch results
   property bool customIsDay: true
   property var customSunrise: null
   property var customSunset: null
   property bool hasFetched: false
 
-  property bool isDay: hasFetched ? customIsDay : (LocationService.data?.weather?.current_weather?.is_day ?? true)
-  property var sunrise: hasFetched ? customSunrise : (LocationService.data?.weather?.daily?.sunrise?.[0] ?? null)
-  property var sunset: hasFetched ? customSunset : (LocationService.data?.weather?.daily?.sunset?.[0] ?? null)
+  // If a custom location is set, show nothing until fetch completes (avoids
+  // showing stale LocationService data for a different location)
+  property bool isDay: pluginLocation !== "" ? (hasFetched ? customIsDay : true) : (LocationService.data?.weather?.current_weather?.is_day ?? true)
+  property var sunrise: pluginLocation !== "" ? (hasFetched ? customSunrise : null) : (LocationService.data?.weather?.daily?.sunrise?.[0] ?? null)
+  property var sunset: pluginLocation !== "" ? (hasFetched ? customSunset : null) : (LocationService.data?.weather?.daily?.sunset?.[0] ?? null)
 
   property string sunriseTime: {
     if (!sunrise) return "--:--"
@@ -77,8 +81,7 @@ Item {
   }
 
   Component.onCompleted: {
-    var loc = pluginApi?.pluginSettings?.location ?? ""
-    if (loc !== "") fetchForLocation(loc)
+    if (pluginLocation !== "") fetchForLocation(pluginLocation)
   }
 
   Rectangle {
