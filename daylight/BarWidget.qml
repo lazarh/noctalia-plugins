@@ -17,17 +17,18 @@ NIconButton {
   property var cfg: pluginApi?.pluginSettings || ({})
   property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
-  property string pluginLocation: cfg.location ?? ""
+  // Track the location we last fetched for
+  property string lastFetchedLocation: ""
 
-  // Custom fetch results (used when pluginLocation is set)
+  // Custom fetch results
   property bool customIsDay: true
   property var customSunrise: null
   property var customSunset: null
 
-  // Use custom data if a location override is set, otherwise fall back to LocationService
-  property bool isDay: pluginLocation !== "" ? customIsDay : (LocationService.data?.weather?.current_weather?.is_day ?? true)
-  property var sunrise: pluginLocation !== "" ? customSunrise : (LocationService.data?.weather?.daily?.sunrise?.[0] ?? null)
-  property var sunset: pluginLocation !== "" ? customSunset : (LocationService.data?.weather?.daily?.sunset?.[0] ?? null)
+  // Use custom data if a location override is active, otherwise fall back to LocationService
+  property bool isDay: lastFetchedLocation !== "" ? customIsDay : (LocationService.data?.weather?.current_weather?.is_day ?? true)
+  property var sunrise: lastFetchedLocation !== "" ? customSunrise : (LocationService.data?.weather?.daily?.sunrise?.[0] ?? null)
+  property var sunset: lastFetchedLocation !== "" ? customSunset : (LocationService.data?.weather?.daily?.sunset?.[0] ?? null)
 
   property string sunriseTime: {
     if (!sunrise) return "--:--"
@@ -79,12 +80,33 @@ NIconButton {
     xhr.send()
   }
 
-  onPluginLocationChanged: {
-    if (pluginLocation !== "") fetchForLocation(pluginLocation)
+  // Poll for location setting changes every 3 seconds (cfg is a JS var — inner
+  // property mutations don't trigger QML bindings)
+  Timer {
+    interval: 3000
+    running: true
+    repeat: true
+    onTriggered: {
+      var loc = pluginApi?.pluginSettings?.location ?? ""
+      if (loc !== root.lastFetchedLocation) {
+        root.lastFetchedLocation = loc
+        if (loc !== "") root.fetchForLocation(loc)
+      }
+    }
+  }
+
+  // Refresh data every hour so sunrise/sunset stays accurate
+  Timer {
+    interval: 3600000
+    running: root.lastFetchedLocation !== ""
+    repeat: true
+    onTriggered: if (root.lastFetchedLocation !== "") root.fetchForLocation(root.lastFetchedLocation)
   }
 
   Component.onCompleted: {
-    if (pluginLocation !== "") fetchForLocation(pluginLocation)
+    var loc = pluginApi?.pluginSettings?.location ?? ""
+    lastFetchedLocation = loc
+    if (loc !== "") fetchForLocation(loc)
   }
 
   icon: root.isDay ? "sun" : "moon-stars"
