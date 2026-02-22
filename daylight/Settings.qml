@@ -5,7 +5,7 @@ import qs.Widgets
 
 ColumnLayout {
     id: root
-    spacing: Style.spacingM
+    spacing: Style.marginM
 
     property var pluginApi: null
 
@@ -18,16 +18,16 @@ ColumnLayout {
 
     NText {
         text: "Location"
-        font.pointSize: Style.textSizeL
+        font.pointSize: Style.fontSizeM
         font.weight: Font.Medium
     }
 
     NText {
         text: "Enter your location in format: city, country"
-        font.pointSize: Style.textSizeS
+        font.pointSize: Style.fontSizeS
         font.weight: Font.Light
-        color: Style.textColorMuted
-        Layout.bottomMargin: Style.spacingS
+        color: Color.mOnSurfaceVariant
+        Layout.bottomMargin: Style.marginS
     }
 
     NTextInput {
@@ -63,7 +63,7 @@ ColumnLayout {
 
                 NText {
                     text: "How it works"
-                    pointSize: Style.fontSizeS
+                    font.pointSize: Style.fontSizeS
                     font.weight: Font.Medium
                     color: Color.mOnSurface
                 }
@@ -72,7 +72,7 @@ ColumnLayout {
             NText {
                 Layout.fillWidth: true
                 text: "Sunrise and sunset times are fetched from Open-Meteo via Noctalia's built-in Location Service. Make sure Location Service is enabled in Noctalia settings."
-                pointSize: Style.fontSizeXS
+                font.pointSize: Style.fontSizeXS
                 color: Color.mOnSurfaceVariant
                 wrapMode: Text.WordWrap
             }
