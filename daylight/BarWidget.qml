@@ -100,9 +100,9 @@ NIconButton {
     xhr.send()
   }
 
-  // Refresh data every hour so sunrise/sunset stays accurate
+  // Refresh once per day so tomorrow's sunrise/sunset times are picked up
   Timer {
-    interval: 3600000
+    interval: 86400000
     running: root.lastFetchedLocation !== ""
     repeat: true
     onTriggered: root.fetchForLocation(root.lastFetchedLocation)
