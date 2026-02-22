@@ -72,16 +72,32 @@ Item {
         border.color: Style.capsuleBorderColor
         border.width: Style.capsuleBorderWidth
 
-        RowLayout {
+	RowLayout {
+	    id: contentRow
             anchors.centerIn: parent
-            spacing: Style.marginS
+	    spacing: Style.marginS
+	    layoutDirection: pillDirection ? Qt.LeftToRight : Qt.RightToLeft
 
             NIcon {
                 id: icon
                 icon: root.isDay ? "sun" : "moon-stars"
-                pointSize: root.barFontSize * 1.2
+                pointSize: Style.barFontSize
                 color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
-            }
+	    }
+            Rectangle {
+		id: textBackground
+		color: "transparent"
+		implicitWidth: text.implicitWidth
+		implicitHeight: text.implicitHeight
+		visible: root.isVertical ? true : root.isDay
+
+		Text {
+		    id: text
+		    text: root.isDay ? root.sunriseTime : root.sunsetTime
+		    font.pixelSize: Style.barFontSize
+		    color: mouseArea.containsMouse ? Color.mOnHover : Color.mOnSurface
+		}
+	    }
         }
 
         MouseArea {
