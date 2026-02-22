@@ -89,8 +89,8 @@ NIconButton {
   }
 
   // Check for location changes on hover so settings apply is picked up immediately
-  onHoveredChanged: {
-    if (hovered) checkAndFetch()
+  HoverHandler {
+    onHoveredChanged: if (hovered) root.checkAndFetch()
   }
 
   // Refresh data every hour so sunrise/sunset stays accurate
