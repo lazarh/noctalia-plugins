@@ -92,8 +92,11 @@ Item {
     xhr.send()
   }
 
-  Component.onCompleted: {
-    if (pluginLocation !== "") fetchForLocation(pluginLocation)
+  onPluginApiChanged: {
+    if (pluginApi) {
+      var loc = pluginApi.pluginSettings?.location ?? ""
+      if (loc !== "") fetchForLocation(loc)
+    }
   }
 
   Rectangle {
