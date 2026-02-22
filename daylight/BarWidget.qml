@@ -52,6 +52,14 @@ NIconButton {
     return `${hours}h ${minutes}m`
   }
 
+  function checkAndFetch() {
+    var loc = pluginApi?.pluginSettings?.location ?? ""
+    if (loc !== root.lastFetchedLocation) {
+      root.lastFetchedLocation = loc
+      if (loc !== "") root.fetchForLocation(loc)
+    }
+  }
+
   function fetchForLocation(location) {
     var xhr = new XMLHttpRequest()
     xhr.open("GET", "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(location) + "&count=1")
@@ -80,27 +88,17 @@ NIconButton {
     xhr.send()
   }
 
-  // Poll for location setting changes every 3 seconds (cfg is a JS var — inner
-  // property mutations don't trigger QML bindings)
-  Timer {
-    interval: 3000
-    running: true
-    repeat: true
-    onTriggered: {
-      var loc = pluginApi?.pluginSettings?.location ?? ""
-      if (loc !== root.lastFetchedLocation) {
-        root.lastFetchedLocation = loc
-        if (loc !== "") root.fetchForLocation(loc)
-      }
-    }
+  // Check for location changes on hover so settings apply is picked up immediately
+  onHoveredChanged: {
+    if (hovered) checkAndFetch()
   }
 
   // Refresh data every hour so sunrise/sunset stays accurate
   Timer {
     interval: 3600000
-    running: root.lastFetchedLocation !== ""
+    running: true
     repeat: true
-    onTriggered: if (root.lastFetchedLocation !== "") root.fetchForLocation(root.lastFetchedLocation)
+    onTriggered: root.checkAndFetch()
   }
 
   Component.onCompleted: {
@@ -148,3 +146,4 @@ NIconButton {
     PanelService.showContextMenu(contextMenu, root, screen);
   }
 }
+
