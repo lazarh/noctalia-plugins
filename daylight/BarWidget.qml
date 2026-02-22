@@ -103,9 +103,9 @@ NIconButton {
   // Refresh data every hour so sunrise/sunset stays accurate
   Timer {
     interval: 3600000
-    running: true
+    running: root.lastFetchedLocation !== ""
     repeat: true
-    onTriggered: root.checkAndFetch()
+    onTriggered: root.fetchForLocation(root.lastFetchedLocation)
   }
 
   Component.onCompleted: {
