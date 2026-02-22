@@ -26,7 +26,7 @@ ColumnLayout {
         text: "Enter your location in format: city, country"
         font.pointSize: Style.textSizeS
         font.weight: Font.Light
-        textColor: Style.textColorMuted
+        color: Style.textColorMuted
         Layout.bottomMargin: Style.spacingS
     }
 
