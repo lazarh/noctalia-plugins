@@ -54,28 +54,19 @@ Item {
   function fetchForLocation(location) {
     var parts = location.split(",")
     var city = parts[0].trim()
-    var country = parts.length > 1 ? parts[1].trim().toLowerCase() : ""
-    Logger.i("Daylight", "Geocoding city:", city, "country hint:", country || "(none)")
+    var countryCode = parts.length > 1 ? parts[1].trim() : ""
+    var url = "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(city) + "&count=1"
+    if (countryCode !== "") url += "&countryCode=" + encodeURIComponent(countryCode)
+    Logger.i("Daylight", "Geocoding:", city, countryCode ? "(" + countryCode + ")" : "")
     var xhr = new XMLHttpRequest()
-    xhr.open("GET", "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(city) + "&count=10")
+    xhr.open("GET", url)
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
         var data = JSON.parse(xhr.responseText)
         if (data.results && data.results.length > 0) {
-          var match = data.results[0]
-          if (country !== "") {
-            for (var i = 0; i < data.results.length; i++) {
-              var r = data.results[i]
-              var rCountry = (r.country ?? "").toLowerCase()
-              var rCode = (r.country_code ?? "").toLowerCase()
-              if (rCountry.indexOf(country) !== -1 || rCode === country) {
-                match = r
-                break
-              }
-            }
-          }
-          Logger.i("Daylight", "Geocode result:", match.name, match.country, "lat:", match.latitude, "lon:", match.longitude)
-          fetchWeather(match.latitude, match.longitude)
+          var r = data.results[0]
+          Logger.i("Daylight", "Geocode result:", r.name, r.country, "lat:", r.latitude, "lon:", r.longitude)
+          fetchWeather(r.latitude, r.longitude)
         } else {
           Logger.i("Daylight", "Geocode returned no results for:", location)
         }

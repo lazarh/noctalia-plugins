@@ -23,7 +23,7 @@ ColumnLayout {
     }
 
     NText {
-        text: "Enter your location in format: city, country"
+        text: "Enter your location in format: city, ISO country code"
         font.pointSize: Style.fontSizeS
         font.weight: Font.Light
         color: Color.mOnSurfaceVariant
@@ -33,7 +33,7 @@ ColumnLayout {
     NTextInput {
         id: locationField
         Layout.fillWidth: true
-        placeholderText: "e.g., London, UK"
+        placeholderText: "e.g., London, GB"
         text: root.location
         onTextChanged: root.location = text
     }
