@@ -1,3 +1,4 @@
+import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Services.Location
@@ -16,12 +17,18 @@ NIconButton {
   property var cfg: pluginApi?.pluginSettings || ({})
   property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
-  // Weather data
-  property bool isDay: LocationService.data?.weather?.current_weather?.is_day ?? true
-  property var sunrise: LocationService.data?.weather?.daily?.sunrise?.[0] ?? null
-  property var sunset: LocationService.data?.weather?.daily?.sunset?.[0] ?? null
+  property string pluginLocation: cfg.location ?? ""
 
-  // Computed values
+  // Custom fetch results (used when pluginLocation is set)
+  property bool customIsDay: true
+  property var customSunrise: null
+  property var customSunset: null
+
+  // Use custom data if a location override is set, otherwise fall back to LocationService
+  property bool isDay: pluginLocation !== "" ? customIsDay : (LocationService.data?.weather?.current_weather?.is_day ?? true)
+  property var sunrise: pluginLocation !== "" ? customSunrise : (LocationService.data?.weather?.daily?.sunrise?.[0] ?? null)
+  property var sunset: pluginLocation !== "" ? customSunset : (LocationService.data?.weather?.daily?.sunset?.[0] ?? null)
+
   property string sunriseTime: {
     if (!sunrise) return "--:--"
     const date = new Date(sunrise)
@@ -42,6 +49,42 @@ NIconButton {
     const hours = Math.floor(diff / (1000 * 60 * 60))
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
     return `${hours}h ${minutes}m`
+  }
+
+  function fetchForLocation(location) {
+    var xhr = new XMLHttpRequest()
+    xhr.open("GET", "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(location) + "&count=1")
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText)
+        if (data.results && data.results.length > 0) {
+          fetchWeather(data.results[0].latitude, data.results[0].longitude)
+        }
+      }
+    }
+    xhr.send()
+  }
+
+  function fetchWeather(lat, lon) {
+    var xhr = new XMLHttpRequest()
+    xhr.open("GET", "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=sunrise,sunset&current_weather=true&timezone=auto")
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+        var data = JSON.parse(xhr.responseText)
+        customIsDay = (data.current_weather?.is_day ?? 1) === 1
+        customSunrise = data.daily?.sunrise?.[0] ?? null
+        customSunset = data.daily?.sunset?.[0] ?? null
+      }
+    }
+    xhr.send()
+  }
+
+  onPluginLocationChanged: {
+    if (pluginLocation !== "") fetchForLocation(pluginLocation)
+  }
+
+  Component.onCompleted: {
+    if (pluginLocation !== "") fetchForLocation(pluginLocation)
   }
 
   icon: root.isDay ? "sun" : "moon-stars"

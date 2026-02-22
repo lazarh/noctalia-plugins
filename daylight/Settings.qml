@@ -13,8 +13,8 @@ ColumnLayout {
     property var cfg: pluginApi?.pluginSettings || ({})
     property var defaults: pluginApi?.manifest?.metadata?.defaultSettings || ({})
 
-    // Reactive property
-    property string location: cfg.location ?? defaults.location
+    // Pre-populate from global location if no plugin override is set
+    property string location: cfg.location || Settings.data.location?.name || ""
 
     NText {
         text: "Location"
