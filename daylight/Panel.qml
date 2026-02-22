@@ -52,13 +52,17 @@ Item {
   }
 
   function fetchForLocation(location) {
+    Logger.i("Daylight", "Geocoding location:", location)
     var xhr = new XMLHttpRequest()
     xhr.open("GET", "https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(location) + "&count=1")
     xhr.onreadystatechange = function() {
       if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
         var data = JSON.parse(xhr.responseText)
         if (data.results && data.results.length > 0) {
+          Logger.i("Daylight", "Geocode result:", data.results[0].name, "lat:", data.results[0].latitude, "lon:", data.results[0].longitude)
           fetchWeather(data.results[0].latitude, data.results[0].longitude)
+        } else {
+          Logger.i("Daylight", "Geocode returned no results for:", location)
         }
       }
     }
@@ -66,6 +70,7 @@ Item {
   }
 
   function fetchWeather(lat, lon) {
+    Logger.i("Daylight", "Fetching weather for lat:", lat, "lon:", lon)
     var xhr = new XMLHttpRequest()
     xhr.open("GET", "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&daily=sunrise,sunset&current_weather=true&timezone=auto")
     xhr.onreadystatechange = function() {
@@ -74,6 +79,7 @@ Item {
         customIsDay = (data.current_weather?.is_day ?? 1) === 1
         customSunrise = data.daily?.sunrise?.[0] ?? null
         customSunset = data.daily?.sunset?.[0] ?? null
+        Logger.i("Daylight", "Weather response — isDay:", customIsDay, "sunrise:", customSunrise, "sunset:", customSunset)
         hasFetched = true
       }
     }
